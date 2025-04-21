@@ -1,10 +1,14 @@
 # establish prefix
 # listen for i and trigger
 # delete prefix and trigger and type 
-#import keyboard
+import keyboard
 #import pyperclip
 #import time
-# PyAutoGUI? I like this
+
+
+keyboard.write('The quick brown fox jumps over the lazy dog.')
+
+
 prefix = "--"
 macone = "p"
-maconeout = "hello"
+maconeout = "hello world"
