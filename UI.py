@@ -8,7 +8,7 @@ def calculate(*args):
     except ValueError:
         pass
 
-root = Tk()
+root = Tk() 
 root.title("Feet to Meters")
 
 mainframe = ttk.Frame(root, padding="3 3 12 12")

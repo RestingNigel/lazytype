@@ -7,7 +7,8 @@ import time
 
 
 # keyboard.write('The quick brown fox jumps over the lazy dog.')
-
+# move triggers to csv file 
+# read triggers file
 TRIGGERS = {
     ":addr": "123 Main Street, Springfield, USA",
     ":sig": "Best regards,\nJohn Doe",
