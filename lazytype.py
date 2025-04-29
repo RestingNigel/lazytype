@@ -10,7 +10,7 @@ import time
 # move triggers to csv file 
 # read triggers file
 TRIGGERS = {
-    ":addr": "123 Main Street, Springfield, USA",
+    "--p": "123 Main Street, Springfield, USA",
     ":sig": "Best regards,\nJohn Doe",
     ":date": time.strftime("%Y-%m-%d"),
 }
