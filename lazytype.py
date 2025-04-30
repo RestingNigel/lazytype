@@ -27,10 +27,10 @@ def main():
 
             if key == "space":
                 if buffer in TRIGGERS:
-                    for _ in range(len(buffer)):
+                    for _ in range(len(buffer)+1):
                         keyboard.send("backspace")
                    # pyperclip.copy()
-                    keyboard.write(TRIGGERS[buffer])
+                    keyboard.write(TRIGGERS[buffer],delay=0.008)
                 buffer = ""
             elif key == "backspace":
                 buffer = buffer[:-1]
@@ -38,7 +38,7 @@ def main():
                 buffer += key
             elif key == "esc":
                 print("Exiting...")
-                TypingMacroApp.keyboard_listener.stop()
+                
                 break
 
 if __name__ == "__main__":
