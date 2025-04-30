@@ -3,6 +3,7 @@ from tkinter import ttk
 from tkinter import Toplevel
 import logging
 import time
+import json
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 class TypingMacroApp(tk.Tk):
@@ -14,11 +15,8 @@ class TypingMacroApp(tk.Tk):
         self.configure(padx=10, pady=10)
      
         self.create_widgets()
-        self.TRIGGERS = {
-    "addr": "123 Main Street, Springfield, USA",
-    "sig": "Best regards,\nJohn Doe",
-    "date": time.strftime("%Y-%m-%d"),
-}
+        with open("data.json", "r") as f:
+            self.TRIGGERS = json.load(f)
 
 
 
@@ -68,14 +66,21 @@ class TypingMacroApp(tk.Tk):
             self.update_list()
         else:
             logger.warning("Both key and value must be provided.")
-       
+        self.update_file()
+    def update_file(self):
+        with open("data.json", "w") as f:
+            json.dump(self.TRIGGERS, f, indent=4)
+        logger.info("File updated successfully.")
+        
+        
 
     def update_list(self):
         self.trigger_listbox.delete(0, tk.END)
         for index, trigs in enumerate(self.TRIGGERS): 
-            self.trigger_listbox.insert(index, str(index) + ": -" + str(trigs))
+            self.trigger_listbox.insert(index, str(index) + ": -" + str(trigs)) 
+            self.output_listbox.insert(index, str(index) + ": -" + str(self.TRIGGERS[trigs]))   
            
 if __name__ == "__main__":
-
+    
     app = TypingMacroApp()
     app.mainloop()
