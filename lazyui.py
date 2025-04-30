@@ -6,6 +6,9 @@ from ttkthemes import ThemedTk
 import logging
 import time
 import json
+import lazytype
+import threading
+import keyboard
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 class TypingMacroApp(ThemedTk):
@@ -30,7 +33,8 @@ class TypingMacroApp(ThemedTk):
 
         trigger_frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
         output_frame.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
-
+        Macro_frame = ttk.LabelFrame(self, text="Typer")
+        Macro_frame.grid(row=1, column=0, columnspan=2, padx=10, pady=10, sticky="nsew")
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(0, weight=1)
@@ -44,8 +48,8 @@ class TypingMacroApp(ThemedTk):
         trigger_btn_frame.pack(fill="x", pady=5)
 
         ttk.Button(trigger_btn_frame, text="Add",command=self.add_trigger).pack(side="left", expand=True, fill="x", padx=2)
-        ttk.Button(trigger_btn_frame, text="Edit").pack(side="left", expand=True, fill="x", padx=2)
-        ttk.Button(trigger_btn_frame, text="Delete").pack(side="left", expand=True, fill="x", padx=2)
+        ttk.Button(trigger_btn_frame, text="Edit",command=self.edit_trigger).pack(side="left", expand=True, fill="x", padx=2)
+        ttk.Button(trigger_btn_frame, text="Delete",command=self.delete_trigger ).pack(side="left", expand=True, fill="x", padx=2)
 
         # Output Listbox and Buttons
         self.output_listbox = tk.Listbox(output_frame, height=10)
@@ -54,6 +58,8 @@ class TypingMacroApp(ThemedTk):
         self.add_outbox.pack()
         output_btn_frame = tk.Frame(output_frame)
         output_btn_frame.pack(fill="x", pady=5)
+        ttk.Checkbutton(Macro_frame, text="Enable Macro").pack(side="left", expand=False, fill="x", padx=2)
+           
 
 
     def add_trigger(self):
@@ -76,17 +82,76 @@ class TypingMacroApp(ThemedTk):
             json.dump(self.TRIGGERS, f, indent=4)
         logger.info("File updated successfully.")
         
-        
+    def delete_trigger(self):
+        selected_index = self.trigger_listbox.curselection()
+        if selected_index:
+            key = self.trigger_listbox.get(selected_index).split(": ", 1)[1]
+            logger.debug("Deleting trigger: %s", key)
+            del self.TRIGGERS[key]
+            self.update_list()
+            self.update_file()
+        else:
+            messagebox.showerror("Error", "No trigger selected for deletion")
+            
+    def edit_trigger(self):
+        selected_index = self.trigger_listbox.curselection()
+        if selected_index:
+            key = self.trigger_listbox.get(selected_index).split(": ", 1)[1]
+            value = self.TRIGGERS[key]
+
+            
+            edit_window = Toplevel(self)
+            edit_window.title("Edit Trigger")
+
+            edit_window.geometry("300x150")
+            ttk.Label(edit_window, text="Trigger:").grid(row=0, column=0, padx=10, pady=10, sticky="w")
+            key_entry = ttk.Entry(edit_window)
+            key_entry.insert(0, key)
+            key_entry.grid(row=0, column=1, padx=10, pady=10)
+
+            ttk.Label(edit_window, text="Output:").grid(row=1, column=0, padx=10, pady=10, sticky="w")
+            value_entry = ttk.Entry(edit_window)
+            value_entry.insert(0, value)
+            value_entry.grid(row=1, column=1, padx=10, pady=10)
+
+            # Submit button to save changes
+            def save_changes():
+                new_key = key_entry.get()
+                new_value = value_entry.get()
+                if new_key and new_value:
+                    # Remove the old key if it was changed
+                    if new_key != key:
+                        del self.TRIGGERS[key]
+                    self.TRIGGERS[new_key] = new_value
+                    self.update_list()
+                    self.update_file()
+                    edit_window.destroy()
+                else:
+                    messagebox.showerror("Error", "Both trigger and output must be provided")
+
+            ttk.Button(edit_window, text="Save", command=save_changes).grid(row=2, column=0, columnspan=2, pady=10)
+        else:
+            messagebox.showerror("Error", "No trigger selected for editing")
+               
+       
 
     def update_list(self):
         self.trigger_listbox.delete(0, tk.END)
+        self.output_listbox.delete(0, tk.END)
         for index, trigs in enumerate(self.TRIGGERS): 
-            self.trigger_listbox.insert(index, str(index) + ": -" + str(trigs)) 
-            self.output_listbox.insert(index, str(index) + ": -" + str(self.TRIGGERS[trigs]))   
+            self.trigger_listbox.insert(index, str(index) + ": " + str(trigs)) 
+            self.output_listbox.insert(index, str(index) + ": " + str(self.TRIGGERS[trigs]))   
+
+    def start_macro(self):
+        # Start the macro in a separate thread
+        self.macro_thread = threading.Thread(target=self.run_macro)
+        self.macro_thread.start()
            
 if __name__ == "__main__":
     
     app = TypingMacroApp()
     app.mainloop()
+    
+    
 
 
