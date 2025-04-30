@@ -4,18 +4,19 @@
 import keyboard
 import pyperclip
 import time
-
+import json
 
 # keyboard.write('The quick brown fox jumps over the lazy dog.')
 # move triggers to csv file 
 # read triggers file
-TRIGGERS = {
-    "--p": "123 Main Street, Springfield, USA",
-    ":sig": "Best regards,\nJohn Doe",
-    ":date": time.strftime("%Y-%m-%d"),
-}
 
 
+    
+# Load triggers from JSON file
+    
+
+with open("data.json", "r") as f:
+    TRIGGERS = json.load(f)
 def main():
     buffer = ""
 
@@ -28,8 +29,8 @@ def main():
                 if buffer in TRIGGERS:
                     for _ in range(len(buffer)):
                         keyboard.send("backspace")
-                    pyperclip.copy(TRIGGERS[buffer])
-                    keyboard.send("ctrl+v")
+                   # pyperclip.copy()
+                    keyboard.write(TRIGGERS[buffer])
                 buffer = ""
             elif key == "backspace":
                 buffer = buffer[:-1]
