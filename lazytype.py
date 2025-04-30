@@ -38,6 +38,7 @@ def main():
                 buffer += key
             elif key == "esc":
                 print("Exiting...")
+                TypingMacroApp.keyboard_listener.stop()
                 break
 
 if __name__ == "__main__":

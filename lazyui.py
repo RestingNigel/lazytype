@@ -23,8 +23,8 @@ class TypingMacroApp(ThemedTk):
         with open("data.json", "r") as f:
             self.TRIGGERS = json.load(f)
         self.update_list()
-
-
+        self.check_state =  tk.BooleanVar()
+        self.check_state.set(False)  
 
     def create_widgets(self):
         # Frames for layout
@@ -33,7 +33,7 @@ class TypingMacroApp(ThemedTk):
 
         trigger_frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
         output_frame.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
-        Macro_frame = ttk.LabelFrame(self, text="Typer")
+        Macro_frame = ttk.LabelFrame(self, text="Keyboard Listener")
         Macro_frame.grid(row=1, column=0, columnspan=2, padx=10, pady=10, sticky="nsew")
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
@@ -58,8 +58,10 @@ class TypingMacroApp(ThemedTk):
         self.add_outbox.pack()
         output_btn_frame = tk.Frame(output_frame)
         output_btn_frame.pack(fill="x", pady=5)
-        ttk.Checkbutton(Macro_frame, text="Enable Macro").pack(side="left", expand=False, fill="x", padx=2)
-           
+
+        #keyboard listener checkbox
+        self.enablelistener=ttk.Button(Macro_frame, text="Enable Keyboard Listener", command=self.start_macro)
+        self.enablelistener.pack(side="left", expand=False, fill="x", padx=2)
 
 
     def add_trigger(self):
@@ -144,14 +146,26 @@ class TypingMacroApp(ThemedTk):
 
     def start_macro(self):
         # Start the macro in a separate thread
-        self.macro_thread = threading.Thread(target=self.run_macro)
-        self.macro_thread.start()
-           
+        logger.debug("Starting keyboard listener")
+        def run_macro():
+            try:
+                lazytype.main()
+            finally:
+                # Re-enable the button when lazytype.main ends
+                self.enablelistener.config(state="normal")
+                self.enablelistener.config(text="Enable Keyboard Listener")
+                logger.debug("Keyboard listener stopped, button re-enabled")
+
+
+        self.keyboard_listener = threading.Thread(target=run_macro, daemon=True)
+        self.keyboard_listener.start()
+        self.enablelistener.config(state="disabled")
+        self.enablelistener.config(text="Keyboard Listener Enabled")
 if __name__ == "__main__":
     
     app = TypingMacroApp()
     app.mainloop()
-    
+
     
 
 
