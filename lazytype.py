@@ -32,6 +32,7 @@ def main():
                    # pyperclip.copy()
                     keyboard.write(TRIGGERS[buffer],delay=0.008)
                 buffer = ""
+
             elif key == "backspace":
                 buffer = buffer[:-1]
             elif len(key) == 1:
