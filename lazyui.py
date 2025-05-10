@@ -11,6 +11,14 @@ import threading
 import keyboard
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+try:
+    with open("data.json", "r") as f:
+        TRIGGERS = json.load(f)
+except FileNotFoundError:
+    TRIGGERS = {":sig": "Best regards,\nJohn Doe"}
+    with open("data.json", "w") as f:
+        json.dump(TRIGGERS, f, indent=4)
+        logger.info("File created successfully.")
 class TypingMacroApp(ThemedTk):
     def __init__(self):
         super().__init__(theme="yaru")
@@ -20,8 +28,6 @@ class TypingMacroApp(ThemedTk):
         self.configure(padx=10, pady=10)
      
         self.create_widgets()
-        with open("data.json", "r") as f:
-            self.TRIGGERS = json.load(f)
         self.update_list()
         self.check_state =  tk.BooleanVar()
         self.check_state.set(False)  
@@ -73,7 +79,7 @@ class TypingMacroApp(ThemedTk):
         value = self.add_outbox.get()
       
         if key and value:
-            self.TRIGGERS[key] = value
+            TRIGGERS[key] = value
             self.update_list()
         else:
             messagebox.showerror("Error", "Both a key and value must be provided")
@@ -81,7 +87,7 @@ class TypingMacroApp(ThemedTk):
         self.update_file()
     def update_file(self):
         with open("data.json", "w") as f:
-            json.dump(self.TRIGGERS, f, indent=4)
+            json.dump(TRIGGERS, f, indent=4)
         logger.info("File updated successfully.")
         
     def delete_trigger(self):
@@ -89,7 +95,7 @@ class TypingMacroApp(ThemedTk):
         if selected_index:
             key = self.trigger_listbox.get(selected_index).split(": ", 1)[1]
             logger.debug("Deleting trigger: %s", key)
-            del self.TRIGGERS[key]
+            del TRIGGERS[key]
             self.update_list()
             self.update_file()
         else:
@@ -99,7 +105,7 @@ class TypingMacroApp(ThemedTk):
         selected_index = self.trigger_listbox.curselection()
         if selected_index:
             key = self.trigger_listbox.get(selected_index).split(": ", 1)[1]
-            value = self.TRIGGERS[key]
+            value = TRIGGERS[key]
 
             
             edit_window = Toplevel(self)
@@ -123,8 +129,8 @@ class TypingMacroApp(ThemedTk):
                 if new_key and new_value:
                     # Remove the old key if it was changed
                     if new_key != key:
-                        del self.TRIGGERS[key]
-                    self.TRIGGERS[new_key] = new_value
+                        del TRIGGERS[key]
+                    TRIGGERS[new_key] = new_value
                     self.update_list()
                     self.update_file()
                     edit_window.destroy()
@@ -140,16 +146,16 @@ class TypingMacroApp(ThemedTk):
     def update_list(self):
         self.trigger_listbox.delete(0, tk.END)
         self.output_listbox.delete(0, tk.END)
-        for index, trigs in enumerate(self.TRIGGERS): 
+        for index, trigs in enumerate(TRIGGERS): 
             self.trigger_listbox.insert(index, str(index) + ": " + str(trigs)) 
-            self.output_listbox.insert(index, str(index) + ": " + str(self.TRIGGERS[trigs]))   
+            self.output_listbox.insert(index, str(index) + ": " + str(TRIGGERS[trigs]))   
 
     def start_macro(self):
         # Start the macro in a separate thread
         logger.debug("Starting keyboard listener")
         def run_macro():
             try:
-                lazytype.main()
+                lazytype.main(TRIGGERS)
             finally:
                 # Re-enable the button when lazytype.main ends
                 self.enablelistener.config(state="normal")
@@ -167,5 +173,3 @@ if __name__ == "__main__":
     app.mainloop()
 
     
-
-

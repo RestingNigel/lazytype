@@ -15,9 +15,7 @@ import json
 # Load triggers from JSON file
     
 
-with open("data.json", "r") as f:
-    TRIGGERS = json.load(f)
-def main():
+def main(TRIGGERS):
     buffer = ""
 
     while True:
@@ -29,7 +27,7 @@ def main():
                 if buffer in TRIGGERS:
                     for _ in range(len(buffer)+1):
                         keyboard.send("backspace")
-                   # pyperclip.copy()
+                   # pyp    erclip.copy()
                     keyboard.write(TRIGGERS[buffer],delay=0.008)
                 buffer = ""
 
