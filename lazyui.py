@@ -155,7 +155,7 @@ class TypingMacroApp(ThemedTk):
         logger.debug("Starting keyboard listener")
         def run_macro():
             try:
-                lazytype.main(TRIGGERS)
+                lazytype.main(TRIGGERS,logger)
             finally:
                 # Re-enable the button when lazytype.main ends
                 self.enablelistener.config(state="normal")
