@@ -4,11 +4,9 @@ from tkinter import Toplevel
 from tkinter import messagebox
 from ttkthemes import ThemedTk
 import logging
-import time
 import json
 import lazytype
 import threading
-import keyboard
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 try:
@@ -48,8 +46,8 @@ class TypingMacroApp(ThemedTk):
         # Trigger Listbox and Buttons
         self.trigger_listbox = tk.Listbox(trigger_frame, height=10)
         self.trigger_listbox.pack(fill="both", expand=True, padx=5, pady=5)
-        self.add_box = ttk.Entry(trigger_frame)
-        self.add_box.pack()
+        #self.add_box = ttk.Entry(trigger_frame)
+       # self.add_box.pack()
         trigger_btn_frame = tk.Frame(trigger_frame)
         trigger_btn_frame.pack(fill="x", pady=5)
 
@@ -60,8 +58,8 @@ class TypingMacroApp(ThemedTk):
         # Output Listbox and Buttons
         self.output_listbox = tk.Listbox(output_frame, height=10)
         self.output_listbox.pack(fill="both", expand=True, padx=5, pady=5)
-        self.add_outbox=ttk.Entry(output_frame)
-        self.add_outbox.pack()
+        #self.add_outbox=ttk.Entry(output_frame)
+        #self.add_outbox.pack()
         output_btn_frame = tk.Frame(output_frame)
         output_btn_frame.pack(fill="x", pady=5)
 
@@ -69,23 +67,35 @@ class TypingMacroApp(ThemedTk):
         self.enablelistener=ttk.Button(Macro_frame, text="Enable Keyboard Listener", command=self.start_macro)
         self.enablelistener.pack(side="left", expand=False, fill="x", padx=2)
 
-
+    
     def add_trigger(self):
-       # add_window = Toplevel(self)
-        #add_window.title("Add Window")
-        #ttk.Button(text="Add",command=self.add_trigger)
-        logger.debug("This is a debug message")
-        key = self.add_box.get()
-        value = self.add_outbox.get()
-      
-        if key and value:
-            TRIGGERS[key] = value
+        add_window = Toplevel(self)
+        add_window.title("Add Window")
+        
+        add_window.geometry("300x150")
+        ttk.Label(add_window, text="Trigger:").grid(row=0, column=0, padx=10, pady=10, sticky="w")
+        key_entry = ttk.Entry(add_window)
+        
+        key_entry.grid(row=0, column=1, padx=10, pady=10)
+
+        ttk.Label(add_window, text="Output:").grid(row=1, column=0, padx=10, pady=10, sticky="w")
+        value_entry = ttk.Entry(add_window)
+        
+        value_entry.grid(row=1, column=1, padx=10, pady=10) 
+        def save_changes():
+            key = key_entry.get()
+            value = value_entry.get()
+            if key and value:
+                TRIGGERS[key] = value
+                self.update_list()
+                add_window.destroy()
+            else:
+                messagebox.showerror("Error", "Both trigger and output must be provided")
+            self.update_file()
             self.update_list()
-        else:
-            messagebox.showerror("Error", "Both a key and value must be provided")
-            #logger.warning("Both key and value must be provided.")
-        self.update_file()
-    def update_file(self):
+        ttk.Button(add_window, text="Save", command=save_changes).grid(row=2, column=0, columnspan=2, pady=10)
+        
+    def update_file(self): #updates the json file with the current triggers
         with open("data.json", "w") as f:
             json.dump(TRIGGERS, f, indent=4)
         logger.info("File updated successfully.")
@@ -127,7 +137,7 @@ class TypingMacroApp(ThemedTk):
                 new_key = key_entry.get()
                 new_value = value_entry.get()
                 if new_key and new_value:
-                    # Remove the old key if it was changed
+                    
                     if new_key != key:
                         del TRIGGERS[key]
                     TRIGGERS[new_key] = new_value
@@ -143,7 +153,7 @@ class TypingMacroApp(ThemedTk):
                
        
 
-    def update_list(self):
+    def update_list(self): #clears the current list and updates it with the current triggers from the dictionary
         self.trigger_listbox.delete(0, tk.END)
         self.output_listbox.delete(0, tk.END)
         for index, trigs in enumerate(TRIGGERS): 
