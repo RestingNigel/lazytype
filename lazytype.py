@@ -4,7 +4,7 @@
 import keyboard
 import pyperclip
 import time
-
+import re 
 
 # keyboard.write('The quick brown fox jumps over the lazy dog.')
 # move triggers to csv file 

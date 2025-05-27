@@ -175,6 +175,7 @@ class TypingMacroApp(ThemedTk):
 
         self.keyboard_listener = threading.Thread(target=run_macro, daemon=True)
         self.keyboard_listener.start()
+# TODO enable the button when the listener on and change it to a turn off macro button
         self.enablelistener.config(state="disabled")
         self.enablelistener.config(text="Keyboard Listener Enabled")
 if __name__ == "__main__":
