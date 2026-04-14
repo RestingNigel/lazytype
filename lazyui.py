@@ -156,10 +156,13 @@ class TypingMacroApp(ThemedTk):
     def update_list(self): #clears the current list and updates it with the current triggers from the dictionary
         self.trigger_listbox.delete(0, tk.END)
         self.output_listbox.delete(0, tk.END)
-        for index, trigs in enumerate(TRIGGERS): 
-            self.trigger_listbox.insert(index, str(index) + ": " + str(trigs)) 
-            self.output_listbox.insert(index, str(index) + ": " + str(TRIGGERS[trigs]))   
-
+        for index, trigs in enumerate(self.order_triggers()):
+            self.trigger_listbox.insert(index, str(index) + ": " + str(trigs))
+            self.output_listbox.insert(index, str(index) + ": " + str(TRIGGERS[trigs]))
+    def order_triggers(self):
+        # Sort triggers by length in descending order
+        sorted_triggers = dict(sorted(TRIGGERS.items(), key=lambda item: len(item[0]), reverse=True))
+        return sorted_triggers
     def start_macro(self):
         # Start the macro in a separate thread
         logger.debug("Starting keyboard listener")

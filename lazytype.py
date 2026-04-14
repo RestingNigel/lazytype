@@ -38,15 +38,26 @@ def main(TRIGGERS,logger):
                 buffer = buffer[:-1]
             elif len(key) == 1:
                 buffer += key
-                if buffer in TRIGGERS:
-                    for _ in range(len(buffer)+1):
+                keymatch = []
+                for key in TRIGGERS:
+                        if buffer.endswith(key):
+                            keymatch.append(key)
+                            logger.info(f"Trigger found on {buffer} with key {key}")
+                if keymatch:
+                    match = max(keymatch, key=len)
+                    for _ in range(len(match)):
                         keyboard.send("backspace")
-                   # pyp    erclip.copy()
-                    keyboard.write(TRIGGERS[buffer],delay=0.008)
+                    keyboard.write(TRIGGERS[match],delay=0.05)
                     buffer = ""
+            
+                    
+             #   if buffer in TRIGGERS:
+                    
+             #       logger.info(f"Trigger found on {buffer}")
                 if len(buffer) > maxlength:
                     buffer = buffer[-maxlength:]
                 logger.info(f"Buffer: {buffer}")
+
             elif key == "esc":
                 print("Exiting...")
                 
